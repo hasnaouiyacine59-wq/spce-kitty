@@ -98,40 +98,31 @@ CONTROL_PORT = _args.control_port
 
 def send_signal(signal: str):
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(5)
-            s.connect(("127.0.0.1", CONTROL_PORT))
-            s.sendall(b'AUTHENTICATE ""\r\n')
-            auth_resp = b""
-            while b"\r\n" not in auth_resp:
-                auth_resp += s.recv(1024)
-            if b"250" not in auth_resp:
-                return False, f"Auth failed: {auth_resp.decode()}"
-            s.sendall(f"SIGNAL {signal}\r\n".encode())
-            sig_resp = b""
-            while b"\r\n" not in sig_resp:
-                sig_resp += s.recv(1024)
-            return b"250" in sig_resp, sig_resp.decode().strip()
+        resp = _tor_cmd(f"SIGNAL {signal}\r\n".encode())
+        return "250" in resp, resp.strip()
     except Exception as e:
         return False, str(e)
 
-def wait_for_tor(timeout: int = 60, interval: int = 3) -> bool:
+def _tor_cmd(cmd: bytes) -> str:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(5)
+        s.connect(("127.0.0.1", CONTROL_PORT))
+        s.sendall(b'AUTHENTICATE ""\r\n')
+        s.recv(1024)
+        s.sendall(cmd)
+        return s.recv(4096).decode()
+
+def wait_for_tor(timeout: int = 120, interval: int = 5) -> bool:
     print(f"[~] Waiting for Tor on control port {CONTROL_PORT}...")
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(5)
-                s.connect(("127.0.0.1", CONTROL_PORT))
-                s.sendall(b'AUTHENTICATE ""\r\n')
-                s.recv(1024)
-                s.sendall(b'GETINFO status/bootstrap-phase\r\n')
-                resp = s.recv(4096).decode()
-                if "PROGRESS=100" in resp:
-                    print(f"[+] Tor ready on port {CONTROL_PORT}")
-                    return True
-                progress = next((p.split("=")[1] for p in resp.split() if p.startswith("PROGRESS=")), "?")
-                print(f"[~] Tor bootstrap: {progress}%")
+            resp = _tor_cmd(b'GETINFO status/bootstrap-phase\r\n')
+            if "PROGRESS=100" in resp:
+                print(f"[+] Tor ready on port {CONTROL_PORT}")
+                return True
+            progress = next((p.split("=")[1] for p in resp.split() if p.startswith("PROGRESS=")), "?")
+            print(f"[~] Tor bootstrap: {progress}%")
         except Exception as e:
             print(f"[~] Control port not ready: {e}")
         time.sleep(interval)
