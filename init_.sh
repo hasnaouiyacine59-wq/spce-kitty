@@ -53,10 +53,6 @@ docker run -d --name tor-9056 -e SOCKS_PORT=9056 -e CONTROL_PORT=5006 -p 9056:90
 docker run -d --name tor-9058 -e SOCKS_PORT=9058 -e CONTROL_PORT=5008 -p 9058:9058 -p 5008:5008 tor-proxy
 docker run -d --name tor-9060 -e SOCKS_PORT=9060 -e CONTROL_PORT=5010 -p 9060:9060 -p 5010:5010 tor-proxy
 
-echo "Waiting for Tor to bootstrap..."
-sleep 15
-
-# Deploy 6 thor-session containers (each on a different Chrome version)
 echo "Starting thor-session containers..."
 docker run -d --name session-9050 -e SOCKS_PORT=9050 -e CONTROL_PORT=5000 --network host -v ~/thor-logs:/logs thor-session:v1.44
 docker run -d --name session-9052 -e SOCKS_PORT=9052 -e CONTROL_PORT=5002 --network host -v ~/thor-logs:/logs thor-session:v1.43
