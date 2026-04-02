@@ -1,55 +1,44 @@
 from flask import Flask, jsonify
-import socket
-import requests
+import socket, requests, os
 
 app = Flask(__name__)
 
-def send_signal(signal: str):
+SOCKS_PORT   = int(os.environ.get("SOCKS_PORT",   9050))
+CONTROL_PORT = int(os.environ.get("CONTROL_PORT", 9051))
+API_PORT     = int(os.environ.get("API_PORT",     5000))
+
+def tor_cmd(cmd: bytes) -> tuple:
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(5)
-            s.connect(("127.0.0.1", 9055))
+            s.connect(("127.0.0.1", CONTROL_PORT))
             s.sendall(b'AUTHENTICATE ""\r\n')
-            auth_resp = b""
-            while b"\r\n" not in auth_resp:
-                auth_resp += s.recv(1024)
-            if b"250" not in auth_resp:
-                return False, f"Auth failed: {auth_resp.decode()}"
-            s.sendall(f"SIGNAL {signal}\r\n".encode())
-            sig_resp = b""
-            while b"\r\n" not in sig_resp:
-                sig_resp += s.recv(1024)
-            return b"250" in sig_resp, sig_resp.decode().strip()
+            s.recv(1024)
+            s.sendall(cmd)
+            resp = s.recv(4096).decode()
+            return "250" in resp, resp.strip()
     except Exception as e:
         return False, str(e)
 
-@app.route("/start")
-def start():
-    return jsonify({"status": "tor is running"})
-
-@app.route("/stop")
-def stop():
-    ok, detail = send_signal("SHUTDOWN")
-    return jsonify({"status": "stopped" if ok else "error", "detail": detail})
-
-@app.route("/restart")
-def restart():
-    ok, detail = send_signal("RELOAD")
-    return jsonify({"status": "restarted" if ok else "error", "detail": detail})
-
 @app.route("/reset-ip")
 def reset_ip():
-    ok, detail = send_signal("NEWNYM")
-    return jsonify({"status": "new identity requested" if ok else "error", "detail": detail})
+    ok, detail = tor_cmd(b"SIGNAL NEWNYM\r\n")
+    return jsonify({"status": "ok" if ok else "error", "detail": detail})
 
 @app.route("/ip")
 def get_ip():
     try:
-        proxies = {"http": "socks5h://127.0.0.1:9055", "https": "socks5h://127.0.0.1:9055"}
+        proxies = {"http": f"socks5h://127.0.0.1:{SOCKS_PORT}", "https": f"socks5h://127.0.0.1:{SOCKS_PORT}"}
         ip = requests.get("https://api.ipify.org", proxies=proxies, timeout=15).text
         return jsonify({"ip": ip})
     except Exception as e:
-        return jsonify({"status": "error", "detail": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/status")
+def status():
+    ok, detail = tor_cmd(b"GETINFO status/bootstrap-phase\r\n")
+    ready = "PROGRESS=100" in detail
+    return jsonify({"bootstrapped": ready, "detail": detail})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5005)
+    app.run(host="0.0.0.0", port=API_PORT)

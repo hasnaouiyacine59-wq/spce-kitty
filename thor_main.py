@@ -91,49 +91,29 @@ _parser.add_argument("-P", "--proxy",      action="store_true")
 _parser.add_argument("--debug",            action="store_true")
 _parser.add_argument("--socks-port",       type=int, default=int(os.environ.get("SOCKS_PORT", 9050)))
 _parser.add_argument("--control-port",     type=int, default=int(os.environ.get("CONTROL_PORT", 9051)))
+_parser.add_argument("--api-port",         type=int, default=int(os.environ.get("API_PORT", 5000)))
 _args, _ = _parser.parse_known_args()
 
 TOR_PROXY    = f"socks5://127.0.0.1:{_args.socks_port}"
 CONTROL_PORT = _args.control_port
-
-def send_signal(signal: str):
-    try:
-        resp = _tor_cmd(f"SIGNAL {signal}\r\n".encode())
-        return "250" in resp, resp.strip()
-    except Exception as e:
-        return False, str(e)
-
-def _tor_cmd(cmd: bytes) -> str:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.settimeout(5)
-        s.connect(("127.0.0.1", CONTROL_PORT))
-        s.sendall(b'AUTHENTICATE ""\r\n')
-        s.recv(1024)
-        s.sendall(cmd)
-        return s.recv(4096).decode()
-
-def wait_for_tor(timeout: int = 120, interval: int = 5) -> bool:
-    print(f"[~] Waiting for Tor on control port {CONTROL_PORT}...")
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        try:
-            resp = _tor_cmd(b'GETINFO status/bootstrap-phase\r\n')
-            if "PROGRESS=100" in resp:
-                print(f"[+] Tor ready on port {CONTROL_PORT}")
-                return True
-            progress = next((p.split("=")[1] for p in resp.split() if p.startswith("PROGRESS=")), "?")
-            print(f"[~] Tor bootstrap: {progress}%")
-        except Exception as e:
-            print(f"[~] Control port not ready: {e}")
-        time.sleep(interval)
-    print(f"[-] Tor did not bootstrap in {timeout}s")
-    return False
+API_BASE     = f"http://127.0.0.1:{_args.api_port}"
 
 def tor_reset_and_get_ip() -> str:
-    wait_for_tor()
-    ok, msg = send_signal("NEWNYM")
-    if not ok:
-        print(f"[-] Tor NEWNYM failed: {msg}")
+    # wait for bootstrap via API
+    for _ in range(24):  # 2 min max
+        try:
+            r = requests.get(f"{API_BASE}/status", timeout=5)
+            if r.json().get("bootstrapped"):
+                break
+        except Exception:
+            pass
+        print(f"[~] Waiting for Tor API on {API_BASE}...")
+        time.sleep(5)
+    # reset IP via API
+    try:
+        requests.get(f"{API_BASE}/reset-ip", timeout=5)
+    except Exception as e:
+        print(f"[-] reset-ip failed: {e}")
     time.sleep(5)
     return get_ip_info(TOR_PROXY).get("ip", "unknown")
 
