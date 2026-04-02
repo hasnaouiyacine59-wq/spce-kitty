@@ -46,20 +46,20 @@ mkdir -p ~/thor-logs && touch ~/thor-logs/sessions.log
 
 # Deploy 6 tor-proxy containers
 echo "Starting tor-proxy containers..."
-docker run -d --name tor-9050 -e SOCKS_PORT=9050 -e CONTROL_PORT=5000 -p 9050:9050 -p 5000:5000 tor-proxy
-docker run -d --name tor-9052 -e SOCKS_PORT=9052 -e CONTROL_PORT=5002 -p 9052:9052 -p 5002:5002 tor-proxy
-docker run -d --name tor-9054 -e SOCKS_PORT=9054 -e CONTROL_PORT=5004 -p 9054:9054 -p 5004:5004 tor-proxy
-docker run -d --name tor-9056 -e SOCKS_PORT=9056 -e CONTROL_PORT=5006 -p 9056:9056 -p 5006:5006 tor-proxy
-docker run -d --name tor-9058 -e SOCKS_PORT=9058 -e CONTROL_PORT=5008 -p 9058:9058 -p 5008:5008 tor-proxy
-docker run -d --name tor-9060 -e SOCKS_PORT=9060 -e CONTROL_PORT=5010 -p 9060:9060 -p 5010:5010 tor-proxy
+docker run -d --name tor-9050 -e SOCKS_PORT=9050 -e CONTROL_PORT=9051 -e API_PORT=5000 -p 9050:9050 -p 5000:5000 tor-proxy
+docker run -d --name tor-9052 -e SOCKS_PORT=9052 -e CONTROL_PORT=9053 -e API_PORT=5001 -p 9052:9052 -p 5001:5001 tor-proxy
+docker run -d --name tor-9054 -e SOCKS_PORT=9054 -e CONTROL_PORT=9055 -e API_PORT=5002 -p 9054:9054 -p 5002:5002 tor-proxy
+docker run -d --name tor-9056 -e SOCKS_PORT=9056 -e CONTROL_PORT=9057 -e API_PORT=5003 -p 9056:9056 -p 5003:5003 tor-proxy
+docker run -d --name tor-9058 -e SOCKS_PORT=9058 -e CONTROL_PORT=9059 -e API_PORT=5004 -p 9058:9058 -p 5004:5004 tor-proxy
+docker run -d --name tor-9060 -e SOCKS_PORT=9060 -e CONTROL_PORT=9061 -e API_PORT=5005 -p 9060:9060 -p 5005:5005 tor-proxy
 
 echo "Starting thor-session containers..."
-docker run -d --name session-9050 -e SOCKS_PORT=9050 -e CONTROL_PORT=5000 -e API_PORT=5000 --network host -v ~/thor-logs:/logs thor-session:v1.44
-docker run -d --name session-9052 -e SOCKS_PORT=9052 -e CONTROL_PORT=5002 -e API_PORT=5002 --network host -v ~/thor-logs:/logs thor-session:v1.43
-docker run -d --name session-9054 -e SOCKS_PORT=9054 -e CONTROL_PORT=5004 -e API_PORT=5004 --network host -v ~/thor-logs:/logs thor-session:v1.42
-docker run -d --name session-9056 -e SOCKS_PORT=9056 -e CONTROL_PORT=5006 -e API_PORT=5006 --network host -v ~/thor-logs:/logs thor-session:v1.41
-docker run -d --name session-9058 -e SOCKS_PORT=9058 -e CONTROL_PORT=5008 -e API_PORT=5008 --network host -v ~/thor-logs:/logs thor-session:v1.40
-docker run -d --name session-9060 -e SOCKS_PORT=9060 -e CONTROL_PORT=5010 -e API_PORT=5010 --network host -v ~/thor-logs:/logs thor-session:v1.39
+docker run -d --name session-9050 -e SOCKS_PORT=9050 -e API_PORT=5000 --network host -v ~/thor-logs:/logs thor-session:v1.44
+docker run -d --name session-9052 -e SOCKS_PORT=9052 -e API_PORT=5001 --network host -v ~/thor-logs:/logs thor-session:v1.43
+docker run -d --name session-9054 -e SOCKS_PORT=9054 -e API_PORT=5002 --network host -v ~/thor-logs:/logs thor-session:v1.42
+docker run -d --name session-9056 -e SOCKS_PORT=9056 -e API_PORT=5003 --network host -v ~/thor-logs:/logs thor-session:v1.41
+docker run -d --name session-9058 -e SOCKS_PORT=9058 -e API_PORT=5004 --network host -v ~/thor-logs:/logs thor-session:v1.40
+docker run -d --name session-9060 -e SOCKS_PORT=9060 -e API_PORT=5005 --network host -v ~/thor-logs:/logs thor-session:v1.39
 
 echo "All containers running. Tailing logs..."
 tail -f ~/thor-logs/sessions.log
