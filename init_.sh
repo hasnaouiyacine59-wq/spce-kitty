@@ -28,18 +28,24 @@ git clone "$REPO_URL"
 echo "Entering directory..."
 cd "$DIR_NAME_2" || { echo "Failed to enter directory"; exit 1; }
 
-# Build images
-echo "Building tor-proxy image..."
-cd tor-proxy && docker build -t tor-proxy . && cd ..
+# Pull images from quay.io
+echo "Pulling images from quay.io..."
+docker pull quay.io/mylastres0rt05/tor-proxy:latest
+docker pull quay.io/mylastres0rt05/thor-session:v1.44
+docker pull quay.io/mylastres0rt05/thor-session:v1.43
+docker pull quay.io/mylastres0rt05/thor-session:v1.42
+docker pull quay.io/mylastres0rt05/thor-session:v1.41
+docker pull quay.io/mylastres0rt05/thor-session:v1.40
+docker pull quay.io/mylastres0rt05/thor-session:v1.39
 
-# Build 6 thor-session images with different Playwright/Chrome versions
-echo "Building thor-session images..."
-docker build --build-arg PLAYWRIGHT_TAG=v1.44.0-jammy -t thor-session:v1.44 .
-docker build --build-arg PLAYWRIGHT_TAG=v1.43.0-jammy -t thor-session:v1.43 .
-docker build --build-arg PLAYWRIGHT_TAG=v1.42.0-jammy -t thor-session:v1.42 .
-docker build --build-arg PLAYWRIGHT_TAG=v1.41.0-jammy -t thor-session:v1.41 .
-docker build --build-arg PLAYWRIGHT_TAG=v1.40.0-jammy -t thor-session:v1.40 .
-docker build --build-arg PLAYWRIGHT_TAG=v1.39.0-jammy -t thor-session:v1.39 .
+# Tag for local use
+docker tag quay.io/mylastres0rt05/tor-proxy:latest tor-proxy
+docker tag quay.io/mylastres0rt05/thor-session:v1.44 thor-session:v1.44
+docker tag quay.io/mylastres0rt05/thor-session:v1.43 thor-session:v1.43
+docker tag quay.io/mylastres0rt05/thor-session:v1.42 thor-session:v1.42
+docker tag quay.io/mylastres0rt05/thor-session:v1.41 thor-session:v1.41
+docker tag quay.io/mylastres0rt05/thor-session:v1.40 thor-session:v1.40
+docker tag quay.io/mylastres0rt05/thor-session:v1.39 thor-session:v1.39
 
 # Create shared log file
 mkdir -p ~/thor-logs && touch ~/thor-logs/sessions.log
