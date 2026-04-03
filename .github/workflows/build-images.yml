@@ -1,0 +1,69 @@
+name: Build & Push to Quay.io
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'Dockerfile'
+      - 'tor-proxy/Dockerfile'
+      - 'requirements.txt'
+      - '.github/workflows/build-images.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: quay.io/mylastres0rt05
+
+jobs:
+  tor-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: tor-proxy
+          push: true
+          tags: ${{ env.REGISTRY }}/tor-proxy:latest
+
+  thor-session:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - tag: v1.44.0-jammy
+            version: v1.44.0
+            label: v1.44
+          - tag: v1.43.0-jammy
+            version: v1.43.0
+            label: v1.43
+          - tag: v1.42.0-jammy
+            version: v1.42.0
+            label: v1.42
+          - tag: v1.41.0-jammy
+            version: v1.41.0
+            label: v1.41
+          - tag: v1.40.0-jammy
+            version: v1.40.0
+            label: v1.40
+          - tag: v1.39.0-jammy
+            version: v1.39.0
+            label: v1.39
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          build-args: |
+            PLAYWRIGHT_TAG=${{ matrix.tag }}
+            PLAYWRIGHT_VERSION=${{ matrix.version }}
+          tags: ${{ env.REGISTRY }}/thor-session:${{ matrix.label }}
