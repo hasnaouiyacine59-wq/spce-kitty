@@ -205,7 +205,8 @@ def run_session(elements: dict, session_id: int = 0, proxy_config: dict = None):
         "1.44": "124", "1.43": "123", "1.42": "122", "1.41": "121",
         "1.40": "120", "1.39": "119",
     }
-    _pw_ver = ".".join(__import__("playwright", fromlist=["__version__"]).__version__.split(".")[:2])
+    import importlib.metadata
+    _pw_ver = ".".join(importlib.metadata.version("playwright").split(".")[:2])
     _chrome_ver = PLAYWRIGHT_CHROMIUM_VERSION.get(_pw_ver, "124")
 
     # Desktop Windows Chrome UAs matched to actual Chromium version
