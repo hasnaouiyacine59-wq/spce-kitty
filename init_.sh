@@ -36,7 +36,6 @@ docker pull quay.io/mylastres0rt05/thor-session:v1.43
 docker pull quay.io/mylastres0rt05/thor-session:v1.42
 docker pull quay.io/mylastres0rt05/thor-session:v1.41
 docker pull quay.io/mylastres0rt05/thor-session:v1.40
-docker pull quay.io/mylastres0rt05/thor-session:v1.39
 
 # Tag for local use
 docker tag quay.io/mylastres0rt05/tor-proxy:latest tor-proxy
@@ -45,7 +44,7 @@ docker tag quay.io/mylastres0rt05/thor-session:v1.43 thor-session:v1.43
 docker tag quay.io/mylastres0rt05/thor-session:v1.42 thor-session:v1.42
 docker tag quay.io/mylastres0rt05/thor-session:v1.41 thor-session:v1.41
 docker tag quay.io/mylastres0rt05/thor-session:v1.40 thor-session:v1.40
-docker tag quay.io/mylastres0rt05/thor-session:v1.39 thor-session:v1.39
+docker tag quay.io/mylastres0rt05/thor-session:v1.40 thor-session:v1.39
 
 # Create shared log file
 mkdir -p ~/thor-logs && touch ~/thor-logs/sessions.log
