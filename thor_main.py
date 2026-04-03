@@ -614,47 +614,6 @@ def run_session(elements: dict, session_id: int = 0, proxy_config: dict = None):
             time.sleep(20)
             _print(f"Current URL: {page.url}")
 
-            # --- Canva login ---
-            try:
-                page.goto("https://www.canva.com/login", wait_until="domcontentloaded", timeout=60000)
-                page.wait_for_load_state("networkidle", timeout=15000)
-
-                # click "Continue with email"
-                email_btn = page.locator("button:has-text('Continue with email'), [data-testid='email-button']")
-                email_btn.wait_for(state="visible", timeout=15000)
-                email_btn.click()
-                _print("Clicked 'Continue with email'")
-
-                # fill email
-                email_input = page.locator("input[type='email'], input[name='email']")
-                email_input.wait_for(state="visible", timeout=10000)
-                email_input.fill(EMAIL)
-                page.keyboard.press("Enter")
-                _print(f"Submitted email: {EMAIL}")
-
-                # wait for verification code input
-                code_input = page.locator("input[autocomplete='one-time-code'], input[placeholder*='code'], input[name='code']")
-                code_input.wait_for(state="visible", timeout=30000)
-                _print("Verification code input appeared — waiting for code...")
-
-                # read code from Gmail via IMAP
-                try:
-                    import read_mail
-                    code = read_mail.get_verification_code()
-                    if code:
-                        code_input.fill(code)
-                        page.keyboard.press("Enter")
-                        _print(f"Submitted verification code: {code}")
-                        page.wait_for_load_state("networkidle", timeout=20000)
-                        _print(f"Post-login URL: {page.url}")
-                    else:
-                        _print("No verification code received")
-                except ImportError:
-                    _print("read_mail.py not found — skipping code submission")
-
-            except Exception as e:
-                _print(f"Canva login failed: {e}")
-                page.screenshot(path=os.path.join(BASE_DIR, f"debug_{session_id}_canva.png"))
         finally:
             context.close()
 
