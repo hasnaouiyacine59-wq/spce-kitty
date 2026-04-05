@@ -31,10 +31,10 @@ mkdir -p /home/codespace/thor-logs && touch /home/codespace/thor-logs/sessions.l
 # Deploy 5 tor-proxy containers
 echo "Starting tor-proxy containers..."
 docker run -d --name tor-9050 -e SOCKS_PORT=9050 -e CONTROL_PORT=9051 -e API_PORT=5000 -p 9050:9050 -p 5000:5000 tor-proxy
-docker run -d --name tor-9052 -e SOCKS_PORT=9052 -e CONTROL_PORT=9053 -e API_PORT=5001 -p 9052:9052 -p 5001:5001 tor-proxy
-docker run -d --name tor-9054 -e SOCKS_PORT=9054 -e CONTROL_PORT=9055 -e API_PORT=5002 -p 9054:9054 -p 5002:5002 tor-proxy
-docker run -d --name tor-9056 -e SOCKS_PORT=9056 -e CONTROL_PORT=9057 -e API_PORT=5003 -p 9056:9056 -p 5003:5003 tor-proxy
-docker run -d --name tor-9058 -e SOCKS_PORT=9058 -e CONTROL_PORT=9059 -e API_PORT=5004 -p 9058:9058 -p 5004:5004 tor-proxy
+# docker run -d --name tor-9052 -e SOCKS_PORT=9052 -e CONTROL_PORT=9053 -e API_PORT=5001 -p 9052:9052 -p 5001:5001 tor-proxy
+# docker run -d --name tor-9054 -e SOCKS_PORT=9054 -e CONTROL_PORT=9055 -e API_PORT=5002 -p 9054:9054 -p 5002:5002 tor-proxy
+# docker run -d --name tor-9056 -e SOCKS_PORT=9056 -e CONTROL_PORT=9057 -e API_PORT=5003 -p 9056:9056 -p 5003:5003 tor-proxy
+# docker run -d --name tor-9058 -e SOCKS_PORT=9058 -e CONTROL_PORT=9059 -e API_PORT=5004 -p 9058:9058 -p 5004:5004 tor-proxy
 
 # Write orchestrator
 cat > /usr/local/bin/orchestrator.py << 'EOF'
@@ -42,10 +42,10 @@ import subprocess, time, os, threading
 
 SESSIONS = [
     {"socks_port": 9050, "control_port": 9051, "api_port": 5000, "image": "thor-session:v1.44"},
-    {"socks_port": 9052, "control_port": 9053, "api_port": 5001, "image": "thor-session:v1.43"},
-    {"socks_port": 9054, "control_port": 9055, "api_port": 5002, "image": "thor-session:v1.42"},
-    {"socks_port": 9056, "control_port": 9057, "api_port": 5003, "image": "thor-session:v1.41"},
-    {"socks_port": 9058, "control_port": 9059, "api_port": 5004, "image": "thor-session:v1.40"},
+    # {"socks_port": 9052, "control_port": 9053, "api_port": 5001, "image": "thor-session:v1.43"},
+    # {"socks_port": 9054, "control_port": 9055, "api_port": 5002, "image": "thor-session:v1.42"},
+    # {"socks_port": 9056, "control_port": 9057, "api_port": 5003, "image": "thor-session:v1.41"},
+    # {"socks_port": 9058, "control_port": 9059, "api_port": 5004, "image": "thor-session:v1.40"},
 ]
 
 def start_container(s):
