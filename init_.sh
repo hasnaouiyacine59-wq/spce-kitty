@@ -41,11 +41,11 @@ cat > /usr/local/bin/orchestrator.py << 'EOF'
 import subprocess, time, os, threading
 
 SESSIONS = [
-    {"socks_port": 9050, "api_port": 5000, "image": "thor-session:v1.44"},
-    {"socks_port": 9052, "api_port": 5001, "image": "thor-session:v1.43"},
-    {"socks_port": 9054, "api_port": 5002, "image": "thor-session:v1.42"},
-    {"socks_port": 9056, "api_port": 5003, "image": "thor-session:v1.41"},
-    {"socks_port": 9058, "api_port": 5004, "image": "thor-session:v1.40"},
+    {"socks_port": 9050, "control_port": 9051, "api_port": 5000, "image": "thor-session:v1.44"},
+    {"socks_port": 9052, "control_port": 9053, "api_port": 5001, "image": "thor-session:v1.43"},
+    {"socks_port": 9054, "control_port": 9055, "api_port": 5002, "image": "thor-session:v1.42"},
+    {"socks_port": 9056, "control_port": 9057, "api_port": 5003, "image": "thor-session:v1.41"},
+    {"socks_port": 9058, "control_port": 9059, "api_port": 5004, "image": "thor-session:v1.40"},
 ]
 
 def start_container(s):
@@ -55,7 +55,9 @@ def start_container(s):
     subprocess.run(["docker", "rm", "-f", name], capture_output=True)
     cmd = [
         "docker", "run", "-d", "--name", name, "--network", "host",
-        "-e", f"SOCKS_PORT={port}", "-e", f"API_PORT={s['api_port']}",
+        "-e", f"SOCKS_PORT={port}",
+        "-e", f"CONTROL_PORT={s['control_port']}",
+        "-e", f"API_PORT={s['api_port']}",
         "-v", f"{os.path.expanduser('~')}/thor-logs:/logs",
         s["image"],
     ]
