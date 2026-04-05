@@ -15,14 +15,18 @@ fi
 
 # Wait for tor-proxy to be ready
 echo "==> Waiting for Tor..."
-until nc -z 127.0.0.1 "${SOCKS_PORT:-9050}" && nc -z 127.0.0.1 "${API_PORT:-5000}"; do
+until python3 -c "import socket; socket.create_connection(('127.0.0.1', ${SOCKS_PORT:-9050}), 2)" 2>/dev/null && \
+      python3 -c "import socket; socket.create_connection(('127.0.0.1', ${API_PORT:-5000}), 2)" 2>/dev/null; do
+  echo "==> Waiting for Tor..."
   sleep 5
 done
 
-# Run from cloned repo
+# Run from cloned repo — all sessions append to one shared log
 mkdir -p /logs
 cd "$REPO_DIR"
 while true; do
-  python3 -u thor_main.py -T >> /logs/sessions.log 2>&1
+  python3 -u thor_main.py -T 2>&1 | while IFS= read -r line; do
+    echo "[${SOCKS_PORT}] $line" >> /logs/sessions.log
+  done
   sleep 5
 done
