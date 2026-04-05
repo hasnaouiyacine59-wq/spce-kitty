@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 REPO_URL="https://github.com/hasnaouiyacine59-wq/dev-tech.git"
 REPO_DIR="/app/dev-tech"
@@ -15,8 +14,9 @@ fi
 
 # Wait for tor-proxy to be ready
 echo "==> Waiting for Tor..."
-until python3 -c "import socket; socket.create_connection(('127.0.0.1', ${SOCKS_PORT:-9050}), 2)" 2>/dev/null && \
-      python3 -c "import socket; socket.create_connection(('127.0.0.1', ${API_PORT:-5000}), 2)" 2>/dev/null; do
+while true; do
+  python3 -c "import socket; socket.create_connection(('127.0.0.1', ${SOCKS_PORT:-9050}), 2)" 2>/dev/null && \
+  python3 -c "import socket; socket.create_connection(('127.0.0.1', ${API_PORT:-5000}), 2)" 2>/dev/null && break
   echo "==> Waiting for Tor..."
   sleep 5
 done
