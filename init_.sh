@@ -26,7 +26,7 @@ docker tag quay.io/mylastres0rt05/thor-session:v1.41 thor-session:v1.41
 docker tag quay.io/mylastres0rt05/thor-session:v1.40 thor-session:v1.40
 
 # Create shared log directory
-mkdir -p ~/thor-logs && touch ~/thor-logs/sessions.log
+mkdir -p /home/codespace/thor-logs && touch /home/codespace/thor-logs/sessions.log
 
 # Deploy 5 tor-proxy containers
 echo "Starting tor-proxy containers..."
@@ -58,7 +58,7 @@ def start_container(s):
         "-e", f"SOCKS_PORT={port}",
         "-e", f"CONTROL_PORT={s['control_port']}",
         "-e", f"API_PORT={s['api_port']}",
-        "-v", f"{os.path.expanduser('~')}/thor-logs:/logs",
+        "-v", "/home/codespace/thor-logs:/logs",
         s["image"],
     ]
     subprocess.run(cmd, check=True)
