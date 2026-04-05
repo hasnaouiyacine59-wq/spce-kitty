@@ -15,7 +15,8 @@ RUN FULL_VERSION=$(wget -qO- "https://googlechromelabs.github.io/chrome-for-test
     ) \
     && wget -q -O /tmp/chrome.zip "$FULL_VERSION" \
     && unzip /tmp/chrome.zip -d /opt/chrome-cft \
-    && ln -sf /opt/chrome-cft/chrome-linux64/chrome /usr/local/bin/google-chrome \
+    && mkdir -p /opt/google/chrome \
+    && ln -sf /opt/chrome-cft/chrome-linux64/chrome /opt/google/chrome/chrome \
     && rm /tmp/chrome.zip
 
 COPY requirements.txt start.sh ./
