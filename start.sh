@@ -13,13 +13,15 @@ else
 fi
 
 # Wait for tor-proxy to be ready
-echo "==> Waiting for Tor...?.........."
+echo "==> Waiting for Tor and API..."
 while true; do
-  python3 -c "import socket; socket.create_connection(('127.0.0.1', ${SOCKS_PORT:-9050}), 2)" 2>/dev/null && \
-  python3 -c "import socket; socket.create_connection(('127.0.0.1', ${API_PORT:-5000}), 2)" 2>/dev/null && break
-  echo "==> Waiting for Tor...!!!!"
+  SOCKS_OK=$(curl -s --socks5 127.0.0.1:${SOCKS_PORT:-9050} --max-time 5 https://check.torproject.org/api/ip 2>/dev/null | grep -c '"IsTor":true')
+  API_OK=$(curl -s --max-time 3 http://127.0.0.1:${API_PORT:-5000}/health 2>/dev/null | grep -c 'ok\|healthy\|true' || curl -s --max-time 3 -o /dev/null -w "%{http_code}" http://127.0.0.1:${API_PORT:-5000}/ | grep -c '^[23]')
+  [ "$SOCKS_OK" -ge 1 ] && [ "$API_OK" -ge 1 ] && break
+  echo "==> Waiting... SOCKS:${SOCKS_OK} API:${API_OK}"
   sleep 5
 done
+echo "==> Tor and API are ready!"
 
 # Run from cloned repo — all sessions append to one shared log
 mkdir -p /logs
