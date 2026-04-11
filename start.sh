@@ -29,8 +29,6 @@ echo "==> Tor and API are ready!"
 mkdir -p /logs
 cd "$REPO_DIR"
 while true; do
-  python3 -u thor_main.py -T 2>&1 | while IFS= read -r line; do
-    echo "[${SOCKS_PORT}] $line" >> /logs/sessions.log
-  done
+  python3 -u thor_main.py -T 2>&1 | tee -a /logs/sessions.log
   sleep 5
 done
