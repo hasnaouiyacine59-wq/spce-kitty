@@ -13,7 +13,7 @@ else
 fi
 
 # Wait for tor-proxy to be ready
-echo "==> Waiting for Tor..."
+echo "==> Waiting for Tor...?.........."
 while true; do
   python3 -c "import socket; socket.create_connection(('127.0.0.1', ${SOCKS_PORT:-9050}), 2)" 2>/dev/null && \
   python3 -c "import socket; socket.create_connection(('127.0.0.1', ${API_PORT:-5000}), 2)" 2>/dev/null && break
