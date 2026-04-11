@@ -16,7 +16,7 @@ fi
 echo "==> Waiting for Tor and API..."
 while true; do
   SOCKS_OK=$(curl -s --socks5 127.0.0.1:${SOCKS_PORT:-9050} --max-time 5 http://httpbin.org/ip 2>/dev/null | grep -c 'origin')
-  API_CODE=$(curl -s --max-time 3 -o /dev/null -w "%{http_code}" http://127.0.0.1:${API_PORT:-5000}/)
+  API_CODE=$(curl -s --max-time 3 -o /dev/null -w "%{http_code}" http://127.0.0.1:${API_PORT:-5000}/ip)
   [[ "$SOCKS_OK" -ge 1 && "$API_CODE" =~ ^[23] ]] && break
   echo "==> Waiting... SOCKS:${SOCKS_OK} API:${API_CODE}"
   sleep 5
